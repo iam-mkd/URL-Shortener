@@ -3,11 +3,10 @@ package com.example.urlshortener.domain.entity;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.Data;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "short_urls", indexes = {
-    @Index(name = "idx_code", columnList = "code", unique = true)
-})
+@Document(collection = "short_urls")
 @Data
 public class ShortUrl {
 
@@ -15,10 +14,10 @@ public class ShortUrl {
     private Long id;
 
 
-    @Column(nullable = false, unique = true, length = 16)
+    @Indexed(unique = true)
     private String code;
 
-    @Column(nullable = false, length = 2048)
+    
     private String longUrl;
 
     private Instant createdAt = Instant.now();
