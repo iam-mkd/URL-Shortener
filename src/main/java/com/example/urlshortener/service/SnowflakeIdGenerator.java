@@ -19,7 +19,7 @@ public class SnowflakeIdGenerator {
     private long lastTimestamp = -1L;
     private long sequence = 0L;
     
-    public synchronized long nextId() throws Exception {
+    public synchronized long nextId() {
 
         long timestamp = System.currentTimeMillis();
         
@@ -30,7 +30,12 @@ public class SnowflakeIdGenerator {
             sequence = (sequence + 1) & MAX_SEQUENCE;
             if (sequence == 0) {
                 while ((timestamp = System.currentTimeMillis()) <= lastTimestamp) {
-                    Thread.sleep(1);
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("Thread interrupted while generating id", e);
+                    }
                 }
             }
         }
