@@ -28,15 +28,26 @@ public class UrlService {
         this.redisTemplate = redisTemplate;
     }
 
-    public ShortUrl createShortUrl(String longUrl, Instant expiresAt) throws Exception {
+    public ShortUrl createShortUrl(String longUrl, String customAlias, Instant expiresAt) {
+        String code;
+
+    if (customAlias != null && !customAlias.isBlank()) {
+        // check if alias already exists
+        if (repository.findByCode(customAlias).isPresent()) {
+            throw new IllegalArgumentException("Custom alias already in use");
+        }
+        code = customAlias;
+    } else {
         long id = idGenerator.nextId();
-        String code = Base62Encoder.encode(id);
+        code = Base62Encoder.encode(id);
+    }
 
-        ShortUrl entity = new ShortUrl(id, code, longUrl, expiresAt);
-        repository.save(entity);
+    Long id = idGenerator.nextId(); // still keep snowflake id as _id
+    ShortUrl entity = new ShortUrl(id, code, longUrl, expiresAt);
+    repository.save(entity);
 
-        cache(code, longUrl);
-        return entity;
+    cache(code, longUrl);
+    return entity;
     }
 
     public Optional<String> resolve(String code) {

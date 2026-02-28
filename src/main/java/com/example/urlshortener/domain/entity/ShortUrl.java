@@ -21,7 +21,11 @@ public class ShortUrl {
     private String longUrl;
 
     private Instant createdAt = Instant.now();
+
+    // 👇 TTL index: Mongo will delete doc when this time is reached
+    @Indexed(expireAfterSeconds = 0)
     private Instant expiresAt;
+    
     private boolean active = true;
 
     protected ShortUrl() {}
